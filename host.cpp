@@ -243,9 +243,9 @@ int main(int argc, char** argv) {
 	//std::vector<DTYPE*, aligned_allocator<DTYPE> > array_b(SM * SP);
     //std::vector<DTYPE*, aligned_allocator<DTYPE> > array_c(SN * SP);
 	DTYPE *array_a;
-    DTYPE *array_b;
+    DTYPE *array_b = new DTYPE[SM * SP];
     DTYPE *array_values;
-    DTYPE *array_c;
+    DTYPE *array_c = new DTYPE[SN * SP];
     DTYPE *array_c_golden = new DTYPE[SN * SP];
 	
     DTYPE_OUT *quantized_multiplier;
