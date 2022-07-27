@@ -154,6 +154,7 @@ int main(int argc, char** argv) {
 		std::cout 	<< "No enough cores (7 in total), please re-enter core number." <<  std::endl;
 		return EXIT_FAILURE;
 	}
+	int core_count = (S_cores&0x7);
     std::vector<cl::Device> devices;
     cl_int err;
     cl::Context context;
@@ -213,7 +214,7 @@ int main(int argc, char** argv) {
             std::cout << "Failed to program device[" << i << "] with xclbin file!\n";
         } else {
             std::cout << "Device[" << i << "]: program successful!\n";
-			for(int i = 0; i < S_cores; i++) {
+			for(int i = 0; i < core_count; i++) {
             	OCL_CHECK(err, krnls[i] = cl::Kernel(program, "mmult_top_sw", &err));
 			}
             valid_device = true;
@@ -281,14 +282,10 @@ int main(int argc, char** argv) {
     }
 	
 	int array_c_adjust = SN;
-	int N_block, P_block;
-	int P_tail;
-	int core_count = (S_cores&0x7);
+	int N_block = SN;
+	int P_block = SP / core_count;
+	int P_tail = SP % core_count;
 	int bias_offset = 0;
-	
-	N_block = SN;
-	P_block = SP / core_count;
-	P_tail = SP % core_count;
 	
 	std::vector<cl::Buffer> buffer_array_b(core_count);
     std::vector<cl::Buffer> buffer_array_c(core_count);
