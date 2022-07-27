@@ -349,11 +349,11 @@ int main(int argc, char** argv) {
     OCL_CHECK(err, cl::Buffer buffer_array_values(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_values, &err));
     //OCL_CHECK(err, cl::Buffer buffer_array_c(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SP * sizeof(DTYPE), NULL, &err));
 	
-	//OCL_CHECK(err, cl::Buffer buffer_quantized_multiplier(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), quantized_multiplier, &err));
-	//OCL_CHECK(err, cl::Buffer buffer_shift(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), shift, &err));
-	//OCL_CHECK(err, cl::Buffer buffer_bias(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), bias, &err));
-	//OCL_CHECK(err, cl::Buffer buffer_array_colIndices(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , nnz * sizeof(int), array_colIndices, &err));
-	//OCL_CHECK(err, cl::Buffer buffer_array_rowPtr(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , nnz * sizeof(int), array_rowPtr, &err));
+	OCL_CHECK(err, cl::Buffer buffer_quantized_multiplier(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), quantized_multiplier, &err));
+	OCL_CHECK(err, cl::Buffer buffer_shift(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), shift, &err));
+	OCL_CHECK(err, cl::Buffer buffer_bias(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), bias, &err));
+	OCL_CHECK(err, cl::Buffer buffer_array_colIndices(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , nnz * sizeof(int), array_colIndices, &err));
+	OCL_CHECK(err, cl::Buffer buffer_array_rowPtr(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , nnz * sizeof(int), array_rowPtr, &err));
 	
 	if(spmm)
         init_arrays_spmm(array_b, SM, SP);
@@ -408,9 +408,9 @@ int main(int argc, char** argv) {
 		std::cout << "check point ----0001 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, spmm));
 		std::cout << "check point ----0002 " << std::endl;
-		OCL_CHECK(err, err = krnls[i].setArg(narg++, quantized_multiplier));
-		OCL_CHECK(err, err = krnls[i].setArg(narg++, shift));
-		OCL_CHECK(err, err = krnls[i].setArg(narg++, bias));
+		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_quantized_multiplier));
+		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_shift));
+		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_bias));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, bias_count));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, zero_point_lhs));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, zero_point_rhs));
@@ -432,8 +432,8 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_c[i]));
 		std::cout << "check point ----003 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, array_c_adjust));
-		OCL_CHECK(err, err = krnls[i].setArg(narg++, array_rowPtr));
-		OCL_CHECK(err, err = krnls[i].setArg(narg++, array_colIndices));
+		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_rowPtr));
+		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_colIndices));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_values));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, nnz));
 		std::cout << "check point ----004 " << std::endl;
