@@ -290,16 +290,21 @@ int main(int argc, char** argv) {
 	std::vector<cl::Buffer> buffer_array_b(core_count);
     std::vector<cl::Buffer> buffer_array_c(core_count);
 	
-	/*
+	DTYPE *array_b_block;
+	DTYPE *array_c_block;
+	
 	for(int i = 0; i < core_count; i++) {
-		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, (array_b + i*P_block*SM), &err));
-		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, (array_c + i*P_block*SN), &err));
+		array_b_block = (DTYPE*)(array_b + i*P_block*SM);
+		array_c_block = (DTYPE*)(array_c + i*P_block*SN);
+		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, array_b_block, &err));
+		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, array_c_block, &err));
 	}
-	*/
+	/*
 	for(int i = 0; i < core_count; i++) {
 		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE)/core_count, NULL, &err));
 		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE)/core_count, NULL, &err));
 	}
+	*/
 	OCL_CHECK(err, cl::Buffer buffer_array_a(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE), NULL, &err));
     //OCL_CHECK(err, cl::Buffer buffer_array_b(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SM * SP * sizeof(DTYPE), NULL, &err));    
     OCL_CHECK(err, cl::Buffer buffer_array_values(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE), NULL, &err));
@@ -311,18 +316,17 @@ int main(int argc, char** argv) {
 	OCL_CHECK(err, cl::Buffer buffer_array_colIndices(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , nnz * sizeof(int), NULL, &err));
 	OCL_CHECK(err, cl::Buffer buffer_array_rowPtr(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , nnz * sizeof(int), NULL, &err));
 	
-	DTYPE *array_b_block;
-	DTYPE *array_c_block;
-	
 	//std::cout << "check point 01 " << std::endl;
 	
 	//Map buffers to userspace pointers
+	/*
 	for(int i = 0; i < core_count; i++) {
 		array_b_block = (DTYPE*)(array_b + i*P_block*SM);
 		array_c_block = (DTYPE*)(array_c + i*P_block*SN);
 		OCL_CHECK(err, array_b_block = (DTYPE*)q.enqueueMapBuffer(buffer_array_b[i], CL_TRUE, CL_MAP_WRITE, 0, SM * SP * sizeof(DTYPE)/core_count, nullptr, nullptr, &err));
 		OCL_CHECK(err, array_c_block = (DTYPE*)q.enqueueMapBuffer(buffer_array_c[i], CL_TRUE, CL_MAP_READ, 0, SN * SP * sizeof(DTYPE)/core_count, nullptr, nullptr, &err));
 	}
+	*/
 	//std::cout << "check point 02 " << std::endl;
 	OCL_CHECK(err, array_a = (DTYPE*)q.enqueueMapBuffer(buffer_array_a, CL_TRUE, CL_MAP_WRITE, 0, SN * SM * sizeof(DTYPE), nullptr, nullptr, &err));
     //OCL_CHECK(err, array_b = (DTYPE*)q.enqueueMapBuffer(buffer_array_b, CL_TRUE, CL_MAP_WRITE, 0, SM * SP * sizeof(DTYPE), nullptr, nullptr, &err));
@@ -484,10 +488,12 @@ int main(int argc, char** argv) {
 	std::cout << "       FPGA Speedup : " << cpu_duration.count() / fpga_duration.count() << " x" << std::endl;
 	std::cout << "----------------------------------------------------------------------------"   << std::endl;
 	
+	/*
 	for(int i = 0; i < core_count; i++) {
 		OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_b[i], array_b + i*P_block*SM));
 		OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_c[i], array_c + i*P_block*SN));
 	}
+	*/
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_a, array_a));
     //OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_b, array_b));
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_values, array_values));
