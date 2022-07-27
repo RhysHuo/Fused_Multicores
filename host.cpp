@@ -314,7 +314,7 @@ int main(int argc, char** argv) {
 	DTYPE *array_b_block;
 	DTYPE *array_c_block;
 	
-	std::cout << "check point 01 " << std::endl;
+	//std::cout << "check point 01 " << std::endl;
 	
 	//Map buffers to userspace pointers
 	for(int i = 0; i < core_count; i++) {
@@ -323,7 +323,7 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, array_b_block = (DTYPE*)q.enqueueMapBuffer(buffer_array_b[i], CL_TRUE, CL_MAP_WRITE, 0, SM * SP * sizeof(DTYPE)/core_count, nullptr, nullptr, &err));
 		OCL_CHECK(err, array_c_block = (DTYPE*)q.enqueueMapBuffer(buffer_array_c[i], CL_TRUE, CL_MAP_READ, 0, SN * SP * sizeof(DTYPE)/core_count, nullptr, nullptr, &err));
 	}
-	std::cout << "check point 02 " << std::endl;
+	//std::cout << "check point 02 " << std::endl;
 	OCL_CHECK(err, array_a = (DTYPE*)q.enqueueMapBuffer(buffer_array_a, CL_TRUE, CL_MAP_WRITE, 0, SN * SM * sizeof(DTYPE), nullptr, nullptr, &err));
     //OCL_CHECK(err, array_b = (DTYPE*)q.enqueueMapBuffer(buffer_array_b, CL_TRUE, CL_MAP_WRITE, 0, SM * SP * sizeof(DTYPE), nullptr, nullptr, &err));
     OCL_CHECK(err, array_values = (DTYPE*)q.enqueueMapBuffer(buffer_array_values, CL_TRUE, CL_MAP_WRITE, 0, nnz * sizeof(DTYPE), nullptr, nullptr, &err));
@@ -397,33 +397,39 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, clamp_min));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, N_block));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, SM));
+		std::cout << "check point ----001 " << std::endl;
 		if(i != (core_count - 1)) {
 			OCL_CHECK(err, err = krnls[i].setArg(narg++, P_block));
 		}
 		else {
 			OCL_CHECK(err, err = krnls[i].setArg(narg++, P_block+P_tail));
 		}
+		std::cout << "check point ----002 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_a));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_b[i]));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_c[i]));
+		std::cout << "check point ----003 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, array_c_adjust));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_rowPtr));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_colIndices));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_values));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, nnz));
+		std::cout << "check point ----004 " << std::endl;
+		
 		
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_array_a, buffer_array_b[i], buffer_array_values, buffer_quantized_multiplier, buffer_shift, buffer_bias, buffer_array_colIndices, buffer_array_rowPtr}, 0));
+		std::cout << "check point ----005 " << std::endl;
 	}
 	OCL_CHECK(err, err = q.finish());
-	
+	std::cout << "check point 03 " << std::endl;
 	auto fpga_begin = std::chrono::high_resolution_clock::now();
-    
+    std::cout << "check point 04 " << std::endl;
 	for (int i = 0; i < core_count; i++) {
         // Launch the kernel
         OCL_CHECK(err, err = q.enqueueTask(krnls[i]));
     }
 	OCL_CHECK(err, err = q.finish());
-	
+	std::cout << "check point 05 " << std::endl;
 	for (int i = 0; i < core_count; i++) {
         OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_array_c[i]}, CL_MIGRATE_MEM_OBJECT_HOST));
     }
