@@ -243,8 +243,9 @@ int main(int argc, char** argv) {
 	//std::vector<DTYPE*, aligned_allocator<DTYPE> > array_b(SM * SP);
     //std::vector<DTYPE*, aligned_allocator<DTYPE> > array_c(SN * SP);
 	
-	aligned_allocator<DTYPE> DTYPE* array_a;
-	
+	//aligned_allocator<DTYPE> DTYPE* array_a;
+	DTYPE *array_a;
+	posix_memalign((void **)&array_a, 4096, SN * SM * sizeof(DTYPE));
 	
 	//DTYPE *array_a;
     DTYPE *array_b = new DTYPE[SM * SP];
