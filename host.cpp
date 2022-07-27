@@ -311,8 +311,8 @@ int main(int argc, char** argv) {
 	OCL_CHECK(err, cl::Buffer buffer_array_colIndices(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , nnz * sizeof(int), NULL, &err));
 	OCL_CHECK(err, cl::Buffer buffer_array_rowPtr(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , nnz * sizeof(int), NULL, &err));
 	
-	DTYPE *array_b_block = new DTYPE[SM * SP/core_count];
-	DTYPE *array_c_block = new DTYPE[SN * SP/core_count];
+	DTYPE *array_b_block = new DTYPE[SM * SP];
+	DTYPE *array_c_block = new DTYPE[SN * SP];
 	
 	//Map buffers to userspace pointers
 	for(int i = 0; i < core_count; i++) {
