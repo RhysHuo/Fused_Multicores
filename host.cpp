@@ -293,20 +293,6 @@ int main(int argc, char** argv) {
     //int *array_colIndices;
     //int *array_rowPtr;
 
-    if(spmm) {
-	    
-        if (fp_input != NULL) {
-            char line_1[1000];
-            if(fgets(line_1, sizeof(line_1), fp_input) != NULL){
-                sscanf(line_1, "%d %d %d", &row_size, &col_size, &nnz);
-            }
-        }
-        else {
-            std::cout << "Error with input file name" << std::endl;
-            exit(EXIT_FAILURE);
-        }
-    }
-
     int no_vectors = 512;
 
     if(spmm){
@@ -328,13 +314,13 @@ int main(int argc, char** argv) {
 	
 	std::vector<cl::Buffer> buffer_array_b(core_count);
     std::vector<cl::Buffer> buffer_array_c(core_count);
-	std::vector<cl::Buffer> buffer_array_a;
-	std::vector<cl::Buffer> buffer_array_values;
-	std::vector<cl::Buffer> buffer_quantized_multiplier;
-	std::vector<cl::Buffer> buffer_shift;
-	std::vector<cl::Buffer> buffer_bias;
-	std::vector<cl::Buffer> buffer_array_colIndices;
-	std::vector<cl::Buffer> buffer_array_rowPtr;
+	std::vector<cl::Buffer> buffer_array_a(1);
+	std::vector<cl::Buffer> buffer_array_values(1);
+	std::vector<cl::Buffer> buffer_quantized_multiplier(1);
+	std::vector<cl::Buffer> buffer_shift(1);
+	std::vector<cl::Buffer> buffer_bias(1);
+	std::vector<cl::Buffer> buffer_array_colIndices(1);
+	std::vector<cl::Buffer> buffer_array_rowPtr(1);
 	
 	DTYPE *array_b_block;
 	DTYPE *array_c_block;
