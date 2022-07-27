@@ -364,7 +364,7 @@ void mmult_top_sw(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<32> 
 	#pragma HLS INTERFACE m_axi port=B offset=slave bundle=gmem1
 	#pragma HLS INTERFACE m_axi port=C offset=slave bundle=gmem2
 	#pragma HLS INTERFACE m_axi port=values offset=slave bundle=gmem3
-	#pragma HLS INTERFACE m_axi port=colIndices offset=slave bundle=gmem4
+	#pragma HLS INTERFACE m_axi port=columnIndex offset=slave bundle=gmem4
 	#pragma HLS INTERFACE m_axi port=rowPtr offset=slave bundle=gmem5
 	#pragma HLS INTERFACE m_axi port=quantized_multiplier offset=slave bundle=gmem6
 	#pragma HLS INTERFACE m_axi port=shift offset=slave bundle=gmem7
