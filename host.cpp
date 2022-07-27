@@ -387,6 +387,7 @@ int main(int argc, char** argv) {
 		int narg = 0;
 		std::cout << "check point ----0001 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, spmm));
+		std::cout << "check point ----0002 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_quantized_multiplier));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_shift));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_bias));
