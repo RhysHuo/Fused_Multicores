@@ -242,7 +242,11 @@ int main(int argc, char** argv) {
 	
 	//std::vector<DTYPE*, aligned_allocator<DTYPE> > array_b(SM * SP);
     //std::vector<DTYPE*, aligned_allocator<DTYPE> > array_c(SN * SP);
-	DTYPE *array_a;
+	
+	aligned_allocator<DTYPE> DTYPE* array_a;
+	
+	
+	//DTYPE *array_a;
     DTYPE *array_b = new DTYPE[SM * SP];
     DTYPE *array_values;
     DTYPE *array_c = new DTYPE[SN * SP];
