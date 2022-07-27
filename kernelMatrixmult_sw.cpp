@@ -354,28 +354,6 @@ void mmult_wrapper_sw(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<
 
 typedef unsigned long u32;
 
-/*
- The amount of data saved in the FPGA is B_HEIGHT*B_WIDTH_BLOCK+A_WIDTH+B_WIDTH_BLOCK which should be less than FPGA BRAM size
-*/
-/*
-#pragma SDS data zero_copy(rowPtr[0:(N+1)])
-#pragma SDS data sys_port(rowPtr:ps_e_S_AXI_HPC0_FPD)
-//----------------------------------------------------------------
-#pragma SDS data zero_copy(columnIndex[0:(nnz)])
-//#pragma SDS data sys_port(columnIndex_0:ps_e_S_AXI_HPC0_FPD)
-
-//----------------------------------------------------------------
-#pragma SDS data zero_copy(values[0:(nnz)])
-#pragma SDS data sys_port(values:ps_e_S_AXI_HPC0_FPD)
-
-
-#pragma SDS data zero_copy(bias[0:(bias_count)])
-#pragma SDS data zero_copy(quantized_multiplier[0:(bias_count)])
-#pragma SDS data zero_copy(shift[0:(bias_count)])
-
-#pragma SDS data zero_copy(A[0:N*M],B[0:M*P], C[0:N*P])
-*/
-
 void mmult_top_sw(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<32> *shift, ap_int<32> *bias,  ap_int<32> bias_count, ap_int<8> zero_point_lhs,  ap_int<8> zero_point_rhs, ap_int<8> zero_point_dst, ap_int<8> clamp_max,ap_int<8> clamp_min,int N, int M, int P, DTYPE* A, DTYPE* B, DTYPE* C,int array_c_adjust,int *rowPtr,int *columnIndex, DTYPE *values,int nnz)
 {
 	
@@ -400,17 +378,17 @@ void mmult_top_sw(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<32> 
          //preloading bias and param data seems to be a good idea but in practice performance is the same and we save preloading overhead
          //param data is loaded in demand in this case
          //preloading is important for certain matrix configurations with small A and large B so I am going to leave it
-         //if (bias_count > 0) 
+	if (bias_count > 0) 
 	{
-	 	for(int bias_index=0;bias_index<bias_count;bias_index++)
-	 	{
+		for(int bias_index=0;bias_index<bias_count;bias_index++)
+		{
 			#pragma HLS PIPELINE
 			bias_data[bias_index]=bias[bias_index];
 			shift_data[bias_index]=shift[bias_index];
 			quantized_multiplier_data[bias_index]=quantized_multiplier[bias_index];
-	 	}
+		}
 	}
-         //else
+	else
 	{
 
 		ap_int<32> tail = P % B_WIDTH_BLOCK;
