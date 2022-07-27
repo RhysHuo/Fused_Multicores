@@ -438,8 +438,8 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, nnz));
 		std::cout << "check point ----004 " << std::endl;
 		
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_array_a, buffer_array_b[i], buffer_array_values}, 0));
-		//OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_array_a, buffer_array_b[i], buffer_array_values, buffer_quantized_multiplier, buffer_shift, buffer_bias, buffer_array_colIndices, buffer_array_rowPtr}, 0));
+		//OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_array_a, buffer_array_b[i], buffer_array_values}, 0));
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_array_a, buffer_array_b[i], buffer_array_values, buffer_quantized_multiplier, buffer_shift, buffer_bias, buffer_array_colIndices, buffer_array_rowPtr}, 0));
 		std::cout << "check point ----005 " << std::endl;
 	}
 	OCL_CHECK(err, err = q.finish());
