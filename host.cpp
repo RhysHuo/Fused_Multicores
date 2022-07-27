@@ -468,6 +468,10 @@ int main(int argc, char** argv) {
 	std::cout << "       FPGA Speedup : " << cpu_duration.count() / fpga_duration.count() << " x" << std::endl;
 	std::cout << "----------------------------------------------------------------------------"   << std::endl;
 	
+	for(int i = 0; i < core_count; i++) {
+		OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_b[i], array_b + i*P_block*SM));
+		OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_c[i], array_c + i*P_block*SN));
+	}
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_a, array_a));
     //OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_b, array_b));
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_values, array_values));
@@ -478,6 +482,6 @@ int main(int argc, char** argv) {
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_bias, bias));
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_colIndices, array_colIndices));
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_rowPtr, array_rowPtr));
-	q.finish();
+	OCL_CHECK(err, err = q.finish());
 	
 }
