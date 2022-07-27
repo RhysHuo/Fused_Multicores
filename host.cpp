@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
     cl_int err;
     cl::Context context;
     cl::CommandQueue q;
-    std::vector<cl::Kernel, aligned_allocator<cl::Kernel>> krnls(S_cores);
+    std::vector<cl::Kernel> krnls(S_cores);
     cl::Program program;
     std::vector<cl::Platform> platforms;
     bool found_device = false;
