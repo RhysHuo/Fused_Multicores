@@ -299,12 +299,21 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, array_b_block, &err));
 		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, array_c_block, &err));
 	}
+	OCL_CHECK(err, buffer_array_a = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_a, &err));
+    //OCL_CHECK(err, cl::Buffer buffer_array_b(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SM * SP * sizeof(DTYPE), NULL, &err));    
+    OCL_CHECK(err, buffer_array_values = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_values, &err));
+    //OCL_CHECK(err, cl::Buffer buffer_array_c(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SP * sizeof(DTYPE), NULL, &err));
+	
+	OCL_CHECK(err, buffer_quantized_multiplier = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), quantized_multiplier, &err));
+	OCL_CHECK(err, buffer_shift = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), shift, &err));
+	OCL_CHECK(err, buffer_bias = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), bias, &err));
+	OCL_CHECK(err, buffer_array_colIndices = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , nnz * sizeof(int), array_colIndices, &err));
+	OCL_CHECK(err, buffer_array_rowPtr = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , nnz * sizeof(int), array_rowPtr, &err));
 	/*
 	for(int i = 0; i < core_count; i++) {
 		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE)/core_count, NULL, &err));
 		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE)/core_count, NULL, &err));
 	}
-	*/
 	OCL_CHECK(err, cl::Buffer buffer_array_a(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE), NULL, &err));
     //OCL_CHECK(err, cl::Buffer buffer_array_b(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SM * SP * sizeof(DTYPE), NULL, &err));    
     OCL_CHECK(err, cl::Buffer buffer_array_values(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE), NULL, &err));
@@ -315,6 +324,7 @@ int main(int argc, char** argv) {
 	OCL_CHECK(err, cl::Buffer buffer_bias(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * sizeof(DTYPE_OUT), NULL, &err));
 	OCL_CHECK(err, cl::Buffer buffer_array_colIndices(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , nnz * sizeof(int), NULL, &err));
 	OCL_CHECK(err, cl::Buffer buffer_array_rowPtr(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , nnz * sizeof(int), NULL, &err));
+	*/
 	
 	//std::cout << "check point 01 " << std::endl;
 	
@@ -327,6 +337,7 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, array_c_block = (DTYPE*)q.enqueueMapBuffer(buffer_array_c[i], CL_TRUE, CL_MAP_READ, 0, SN * SP * sizeof(DTYPE)/core_count, nullptr, nullptr, &err));
 	}
 	*/
+	/*
 	//std::cout << "check point 02 " << std::endl;
 	OCL_CHECK(err, array_a = (DTYPE*)q.enqueueMapBuffer(buffer_array_a, CL_TRUE, CL_MAP_WRITE, 0, SN * SM * sizeof(DTYPE), nullptr, nullptr, &err));
     //OCL_CHECK(err, array_b = (DTYPE*)q.enqueueMapBuffer(buffer_array_b, CL_TRUE, CL_MAP_WRITE, 0, SM * SP * sizeof(DTYPE), nullptr, nullptr, &err));
@@ -338,7 +349,7 @@ int main(int argc, char** argv) {
 	OCL_CHECK(err, bias = (DTYPE_OUT*)q.enqueueMapBuffer(buffer_bias, CL_TRUE, CL_MAP_WRITE, 0, SN * sizeof(DTYPE_OUT), nullptr, nullptr, &err));
 	OCL_CHECK(err, array_colIndices = (int*)q.enqueueMapBuffer(buffer_array_colIndices, CL_TRUE, CL_MAP_WRITE, 0, nnz * sizeof(int), nullptr, nullptr, &err));
 	OCL_CHECK(err, array_rowPtr = (int*)q.enqueueMapBuffer(buffer_array_rowPtr, CL_TRUE, CL_MAP_WRITE, 0, (SN + 1) * sizeof(int), nullptr, nullptr, &err));
-	
+	*/
 	if(spmm)
         init_arrays_spmm(array_b, SM, SP);
     else
