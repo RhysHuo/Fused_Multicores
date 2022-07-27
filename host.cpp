@@ -551,6 +551,7 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_c[i], array_c + i*P_block*SN));
 	}
 	*/
+	/*
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_a, array_a));
     //OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_b, array_b));
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_values, array_values));
@@ -562,5 +563,6 @@ int main(int argc, char** argv) {
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_colIndices, array_colIndices));
 	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_rowPtr, array_rowPtr));
 	OCL_CHECK(err, err = q.finish());
+	*/
 	
 }
