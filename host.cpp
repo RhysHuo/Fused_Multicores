@@ -290,9 +290,15 @@ int main(int argc, char** argv) {
 	std::vector<cl::Buffer> buffer_array_b(core_count);
     std::vector<cl::Buffer> buffer_array_c(core_count);
 	
+	/*
 	for(int i = 0; i < core_count; i++) {
-		OCL_CHECK(err, buffer_array_b[i] = (DTYPE*)cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, (array_b + i*P_block*SM), &err));
-		OCL_CHECK(err, buffer_array_c[i] = (DTYPE*)cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, (array_c + i*P_block*SN), &err));
+		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, (array_b + i*P_block*SM), &err));
+		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, (array_c + i*P_block*SN), &err));
+	}
+	*/
+	for(int i = 0; i < core_count; i++) {
+		OCL_CHECK(err, cl::Buffer buffer_array_b[i](context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE)/core_count, NULL, &err));
+		OCL_CHECK(err, cl::Buffer buffer_array_c[i](context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE)/core_count, NULL, &err));
 	}
 	OCL_CHECK(err, cl::Buffer buffer_array_a(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SM * sizeof(DTYPE), NULL, &err));
     //OCL_CHECK(err, cl::Buffer buffer_array_b(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SM * SP * sizeof(DTYPE), NULL, &err));    
@@ -306,6 +312,10 @@ int main(int argc, char** argv) {
 	OCL_CHECK(err, cl::Buffer buffer_array_rowPtr(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , nnz * sizeof(int), NULL, &err));
 	
 	//Map buffers to userspace pointers
+	for(int i = 0; i < core_count; i++) {
+		OCL_CHECK(err, array_b + i*P_block*SM = (DTYPE*)q.enqueueMapBuffer(buffer_array_b[i], CL_TRUE, CL_MAP_WRITE, 0, SM * SP * sizeof(DTYPE)/core_count, nullptr, nullptr, &err));
+		OCL_CHECK(err, array_c + i*P_block*SN = (DTYPE*)q.enqueueMapBuffer(buffer_array_c[i], CL_TRUE, CL_MAP_READ, 0, SN * SP * sizeof(DTYPE)/core_count, nullptr, nullptr, &err));
+	}
 	OCL_CHECK(err, array_a = (DTYPE*)q.enqueueMapBuffer(buffer_array_a, CL_TRUE, CL_MAP_WRITE, 0, SN * SM * sizeof(DTYPE), nullptr, nullptr, &err));
     //OCL_CHECK(err, array_b = (DTYPE*)q.enqueueMapBuffer(buffer_array_b, CL_TRUE, CL_MAP_WRITE, 0, SM * SP * sizeof(DTYPE), nullptr, nullptr, &err));
     OCL_CHECK(err, array_values = (DTYPE*)q.enqueueMapBuffer(buffer_array_values, CL_TRUE, CL_MAP_WRITE, 0, nnz * sizeof(DTYPE), nullptr, nullptr, &err));
