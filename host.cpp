@@ -244,20 +244,54 @@ int main(int argc, char** argv) {
     //std::vector<DTYPE*, aligned_allocator<DTYPE> > array_c(SN * SP);
 	
 	//aligned_allocator<DTYPE> DTYPE* array_a;
+	
+	if(spmm) {
+	    
+        if (fp_input != NULL) {
+            char line_1[1000];
+            if(fgets(line_1, sizeof(line_1), fp_input) != NULL){
+                sscanf(line_1, "%d %d %d", &row_size, &col_size, &nnz);
+            }
+        }
+        else {
+            std::cout << "Error with input file name" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+	
 	DTYPE *array_a;
-	posix_memalign((void **)&array_a, 4096, SN * SM * sizeof(DTYPE));
-	
-	//DTYPE *array_a;
-    DTYPE *array_b = new DTYPE[SM * SP];
-    DTYPE *array_values;
-    DTYPE *array_c = new DTYPE[SN * SP];
-    DTYPE *array_c_golden = new DTYPE[SN * SP];
-	
-    DTYPE_OUT *quantized_multiplier;
+	DTYPE *array_b;
+	DTYPE *array_values;
+	DTYPE *array_c;
+	DTYPE *array_c_golden;
+	DTYPE_OUT *quantized_multiplier;
     DTYPE_OUT *shift;
     DTYPE_OUT *bias;
     int *array_colIndices;
     int *array_rowPtr;
+	
+	posix_memalign((void **)&array_a, 4096, SN * SM * sizeof(DTYPE));
+	posix_memalign((void **)&array_b, 4096, SM * SP * sizeof(DTYPE));
+	posix_memalign((void **)&array_values, 4096, SN * SM * sizeof(DTYPE));
+	posix_memalign((void **)&array_c, 4096, SN * SP * sizeof(DTYPE));
+	posix_memalign((void **)&array_c_golden, 4096, SN * SP * sizeof(DTYPE));
+	posix_memalign((void **)&quantized_multiplier, 4096, SN * sizeof(DTYPE_OUT));
+	posix_memalign((void **)&shift, 4096, SN * sizeof(DTYPE_OUT));
+	posix_memalign((void **)&bias, 4096, SN * sizeof(DTYPE_OUT));
+	posix_memalign((void **)&array_colIndices, 4096, nnz * sizeof(int));
+	posix_memalign((void **)&array_rowPtr, 4096, nnz * sizeof(int));
+	
+	//DTYPE *array_a;
+    //DTYPE *array_b = new DTYPE[SM * SP];
+    //DTYPE *array_values;
+    //DTYPE *array_c = new DTYPE[SN * SP];
+    //DTYPE *array_c_golden = new DTYPE[SN * SP];
+	
+    //DTYPE_OUT *quantized_multiplier;
+    //DTYPE_OUT *shift;
+    //DTYPE_OUT *bias;
+    //int *array_colIndices;
+    //int *array_rowPtr;
 
     if(spmm) {
 	    
@@ -294,6 +328,13 @@ int main(int argc, char** argv) {
 	
 	std::vector<cl::Buffer> buffer_array_b(core_count);
     std::vector<cl::Buffer> buffer_array_c(core_count);
+	std::vector<cl::Buffer> buffer_array_a;
+	std::vector<cl::Buffer> buffer_array_values;
+	std::vector<cl::Buffer> buffer_quantized_multiplier;
+	std::vector<cl::Buffer> buffer_shift;
+	std::vector<cl::Buffer> buffer_bias;
+	std::vector<cl::Buffer> buffer_array_colIndices;
+	std::vector<cl::Buffer> buffer_array_rowPtr;
 	
 	DTYPE *array_b_block;
 	DTYPE *array_c_block;
