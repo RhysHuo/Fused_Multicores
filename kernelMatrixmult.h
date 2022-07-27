@@ -157,56 +157,32 @@ void mmult_wrapper_sw(
 	DTYPE *values
 );
 
-void mmult_top_sw(
-	ap_uint<2> mode, 
-	ap_int<32> *quantized_multiplier, 
-	ap_int<32> *shift, 
-	ap_int<32> *bias,  
-	ap_int<32> bias_count, 
-	ap_int<8> zero_point_lhs,  
-	ap_int<8> zero_point_rhs, 
-	ap_int<8> zero_point_dst, 
-	ap_int<8> clamp_max,
-	ap_int<8> clamp_min,
-	int N, 
-	int M, 
-	int P, 
-	DTYPE* A, 
-	DTYPE* B, 
-	DTYPE* C,
-	int array_c_adjust,
-	int *rowPtr,
-	int *columnIndex,
-	DTYPE *values,
-	int nnz
-);
-
 extern "C" {
 
-	void kernelmult1_sw(
-		int cores,
-		ap_uint<2> mode,
-		ap_int<32> *quantized_multiplier,
-		ap_int<32> *shift,
-		ap_int<32> *bias,
-		ap_int<32> bias_count,
-		ap_int<8> zero_point_lhs,
-		ap_int<8> zero_point_rhs,
-		ap_int<8> zero_point_dst,
+	void mmult_top_sw(
+		ap_uint<2> mode, 
+		ap_int<32> *quantized_multiplier, 
+		ap_int<32> *shift, 
+		ap_int<32> *bias,  
+		ap_int<32> bias_count, 
+		ap_int<8> zero_point_lhs,  
+		ap_int<8> zero_point_rhs, 
+		ap_int<8> zero_point_dst, 
 		ap_int<8> clamp_max,
 		ap_int<8> clamp_min,
-		DTYPE *array_a,
-		DTYPE *array_b,
-		DTYPE *array_c,
-		DTYPE *values,
-		int *colIndices,
+		int N, 
+		int M, 
+		int P, 
+		DTYPE* A, 
+		DTYPE* B, 
+		DTYPE* C,
+		int array_c_adjust,
 		int *rowPtr,
-		int nnz,
-		int N,
-		int M,
-		int P
+		int *columnIndex,
+		DTYPE *values,
+		int nnz
 	);
-
+	
 }
 
 #endif 
