@@ -281,7 +281,8 @@ int main(int argc, char** argv) {
     }
 	
 	int array_c_adjust = SN;
-	int P_block;
+	int N_block, P_block;
+	int P_tail;
 	int core_count = (S_cores&0x7);
 	int bias_offset = 0;
 	
@@ -381,10 +382,12 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, clamp_min));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, N_block));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, SM));
-		if(i != core_count - 1)
+		if(i != (core_count - 1)) {
 			OCL_CHECK(err, err = krnls[i].setArg(narg++, P_block));
-		else
-			OCL_CHECK(err, err = krnls[i].setArg(narg++, P_block+P_tail));		
+		}
+		else {
+			OCL_CHECK(err, err = krnls[i].setArg(narg++, P_block+P_tail));
+		}
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_a));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_b[i]));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_c[i]));
