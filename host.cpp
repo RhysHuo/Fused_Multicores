@@ -239,8 +239,8 @@ int main(int argc, char** argv) {
 	int row_size = 0;
     int col_size = 0;
 	
-	std::vector<DTYPE, aligned_allocator<DTYPE> > array_b(SM * SP);
-    std::vector<DTYPE, aligned_allocator<DTYPE> > array_c(SN * SP);
+	std::vector<DTYPE*, aligned_allocator<DTYPE> > array_b(SM * SP);
+    std::vector<DTYPE*, aligned_allocator<DTYPE> > array_c(SN * SP);
 	DTYPE *array_a;
     //DTYPE *array_b;
     DTYPE *array_values;
