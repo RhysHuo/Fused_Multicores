@@ -305,6 +305,7 @@ int main(int argc, char** argv) {
 	printf("bias = %x \n", bias);
 	printf("array_colIndices = %x \n", array_colIndices);
 	printf("array_rowPtr = %x \n", array_rowPtr);
+	printf("array_c - array_values = %x %d \n", array_c - array_values, array_c - array_values);
 	
 	//DTYPE *array_a;
     //DTYPE *array_b = new DTYPE[SM * SP];
