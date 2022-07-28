@@ -272,6 +272,31 @@ int main(int argc, char** argv) {
         }
     }
 	
+	//DTYPE *array_a;
+    //DTYPE *array_b = new DTYPE[SM * SP];
+    //DTYPE *array_values;
+    //DTYPE *array_c = new DTYPE[SN * SP];
+    //DTYPE *array_c_golden = new DTYPE[SN * SP];
+	
+    //DTYPE_OUT *quantized_multiplier;
+    //DTYPE_OUT *shift;
+    //DTYPE_OUT *bias;
+    //int *array_colIndices;
+    //int *array_rowPtr;
+
+    int no_vectors = 512;
+
+    if(spmm){
+        SN = row_size;
+        SM = col_size;
+        SP = no_vectors;
+    }
+    else{
+        SN = atoi(argv[5]);
+        SM = atoi(argv[6]);
+        SP = atoi(argv[7]);
+    }
+	
 	DTYPE *array_a;
 	DTYPE *array_b;
 	DTYPE *array_values;
@@ -307,31 +332,6 @@ int main(int argc, char** argv) {
 	printf("array_rowPtr = %x \n", array_rowPtr);
 	printf("array_c - array_values = %x %d \n", array_c - array_values, array_c - array_values);
 	printf("sizeof(DTYPE) = %x %d \n", sizeof(DTYPE), sizeof(DTYPE));
-	
-	//DTYPE *array_a;
-    //DTYPE *array_b = new DTYPE[SM * SP];
-    //DTYPE *array_values;
-    //DTYPE *array_c = new DTYPE[SN * SP];
-    //DTYPE *array_c_golden = new DTYPE[SN * SP];
-	
-    //DTYPE_OUT *quantized_multiplier;
-    //DTYPE_OUT *shift;
-    //DTYPE_OUT *bias;
-    //int *array_colIndices;
-    //int *array_rowPtr;
-
-    int no_vectors = 512;
-
-    if(spmm){
-        SN = row_size;
-        SM = col_size;
-        SP = no_vectors;
-    }
-    else{
-        SN = atoi(argv[5]);
-        SM = atoi(argv[6]);
-        SP = atoi(argv[7]);
-    }
 	
 	int array_c_adjust = SN;
 	int N_block = SN;
