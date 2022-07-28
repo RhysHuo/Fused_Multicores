@@ -231,73 +231,85 @@ void compute_sw(ap_uint<2> mode, ap_int<8> zero_point_lhs,  ap_int<8> zero_point
 void scale_sw(ap_int<32> *quantized_multiplier, ap_int<32> *shift, ap_int<32> *bias, ap_int<8> zero_point_dst, ap_int<8> clamp_max,ap_int<8> clamp_min,int N, int M, int P, hls::stream<DTYPE_OUT> C_fifo[C_WIDTH_BLOCK],int B_index, int B_index_loop,int tail,hls::stream<DTYPE_OUT> write_fifo[C_WIDTH_BLOCK])
 {
 
-			int counter = 0;
-			int B_WIDTH_INT;
-			if (B_index < (B_index_loop-1))
-				B_WIDTH_INT = B_WIDTH_BLOCK;
-			else
-				B_WIDTH_INT = tail;
+	int counter = 0;
+	int B_WIDTH_INT;
+	if (B_index < (B_index_loop-1))
+		B_WIDTH_INT = B_WIDTH_BLOCK;
+	else
+		B_WIDTH_INT = tail;
+	
+	int N_4 = N - N % 4;
+	int N_4left = N % 4;
 
-			LOOP_CH1:    
-				for (int i = 0; i < N; i+=4) {
-					
-					ap_int<32> bias_val[4];
-					ap_int<32> shift_val[4];
-					ap_int<32> mult_val[4];
-					bias_val[0] =  bias[i];
-					bias_val[1] =  bias[i+1];
-					bias_val[2] =  bias[i+2];
-					bias_val[3] =  bias[i+3];
-					shift_val[0] = shift[i];
-					shift_val[1] = shift[i+1];
-					shift_val[2] = shift[i+2];
-					shift_val[3] = shift[i+3];
-					mult_val[0] = quantized_multiplier[i];
-					mult_val[1] = quantized_multiplier[i+1];
-					mult_val[2] = quantized_multiplier[i+2];
-					mult_val[3] = quantized_multiplier[i+3];
-					
-					
-					//LOOP_CW1: for (int j = 0; j < B_WIDTH_INT; j++) {
-					LOOP_CW1: 
-						for (int j = 0; j < B_WIDTH_BLOCK; j++) {
-							#pragma HLS PIPELINE II=4	
-							//#pragma HLS UNROLL factor=2
-							DTYPE C_out;
-							LOOP_CH3:    
-								for (int z = 0; z < 4; z++) {
-									//#pragma HLS PIPELINE
-									#pragma HLS loop_tripcount min=1 max=1 avg=1
-									if (j<B_WIDTH_INT)
-									{
-										#ifdef ENABLE_SCALING
-										ap_int<64> C_temp1 =  C_fifo[j].read() + bias_val[z];
-										ap_int<32> total_shift1 = 31 - shift_val[z];
-										ap_int<64> round1 = (ap_int<64>)1 << (total_shift1 - 1);
-										C_temp1 = C_temp1*mult_val[z] + round1;
-										C_temp1 = (C_temp1 >> total_shift1) + zero_point_dst;
-										#else
-										ap_int<64> C_temp1 =  C_fifo[j].read()+ bias_val[z];
-										#endif
-										ap_int<8> C_temp5 = C_temp1;
-										if (C_temp1 < clamp_min) C_temp5 = clamp_min;
-										if (C_temp1 > clamp_max) C_temp5 = clamp_max; 
-										
-										C_out = ((C_out >> 8) | ((int)C_temp5 << 24));
-										
-										write_fifo[j] << C_temp1;
-										/*
-										if (z==3)
-										{
-											write_fifo[j] << C_out;
-										}
-										*/
-										
-									}
+	LOOP_CH1:    
+		for (int i = 0; i < N_4; i+=4) {
+
+			ap_int<32> bias_val[4];
+			ap_int<32> shift_val[4];
+			ap_int<32> mult_val[4];
+			bias_val[0] =  bias[i];
+			bias_val[1] =  bias[i+1];
+			bias_val[2] =  bias[i+2];
+			bias_val[3] =  bias[i+3];
+			shift_val[0] = shift[i];
+			shift_val[1] = shift[i+1];
+			shift_val[2] = shift[i+2];
+			shift_val[3] = shift[i+3];
+			mult_val[0] = quantized_multiplier[i];
+			mult_val[1] = quantized_multiplier[i+1];
+			mult_val[2] = quantized_multiplier[i+2];
+			mult_val[3] = quantized_multiplier[i+3];
+
+
+			//LOOP_CW1: for (int j = 0; j < B_WIDTH_INT; j++) {
+			LOOP_CW1: 
+				for (int j = 0; j < B_WIDTH_BLOCK; j++) {
+					#pragma HLS PIPELINE II=4	
+					//#pragma HLS UNROLL factor=2
+					DTYPE C_out;
+					LOOP_CH3:    
+						for (int z = 0; z < 4; z++) {
+							//#pragma HLS PIPELINE
+							#pragma HLS loop_tripcount min=1 max=1 avg=1
+							if (j<B_WIDTH_INT)
+							{
+								#ifdef ENABLE_SCALING
+								ap_int<64> C_temp1 =  C_fifo[j].read() + bias_val[z];
+								ap_int<32> total_shift1 = 31 - shift_val[z];
+								ap_int<64> round1 = (ap_int<64>)1 << (total_shift1 - 1);
+								C_temp1 = C_temp1*mult_val[z] + round1;
+								C_temp1 = (C_temp1 >> total_shift1) + zero_point_dst;
+								#else
+								ap_int<64> C_temp1 =  C_fifo[j].read()+ bias_val[z];
+								#endif
+								ap_int<8> C_temp5 = C_temp1;
+								if (C_temp1 < clamp_min) C_temp5 = clamp_min;
+								if (C_temp1 > clamp_max) C_temp5 = clamp_max; 
+
+								C_out = ((C_out >> 8) | ((int)C_temp5 << 24));
+
+								write_fifo[j] << C_temp1;
+								/*
+								if (z==3)
+								{
+									write_fifo[j] << C_out;
 								}
-								
+								*/
+
+							}
 						}
-				}     
+
+				}
+		}
+		for (int i = 0; i < N_4left; i+=1) {
+			for (int j = 0; j < B_WIDTH_BLOCK; j++) {
+				#pragma HLS PIPELINE
+				if (j<B_WIDTH_INT) {
+					ap_int<64> C_temp1 =  C_fifo[j].read();
+					write_fifo[j] << C_temp1;
+				}
+			}
+		}
 }
 
 void writec_sw(int N,int P, hls::stream<DTYPE_OUT> write_fifo[C_WIDTH_BLOCK], DTYPE* C,int array_c_adjust,int B_index, int B_index_loop,int tail)
