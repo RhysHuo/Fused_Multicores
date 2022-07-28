@@ -353,8 +353,8 @@ int main(int argc, char** argv) {
 	
 	DTYPE *array_b_block;
 	DTYPE *array_c_block;
-	//posix_memalign((void **)&array_b_block, 4096, SM * SP * sizeof(DTYPE));
-	//posix_memalign((void **)&array_c_block, 4096, SN * SP * sizeof(DTYPE));
+	posix_memalign((void **)&array_b_block, 4096, SM * SP * sizeof(DTYPE));
+	posix_memalign((void **)&array_c_block, 4096, SN * SP * sizeof(DTYPE));
 	
 	for(int i = 0; i < core_count; i++) {
 		array_b_block = (DTYPE*)(array_b + i*P_block*SM);
