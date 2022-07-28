@@ -217,9 +217,6 @@ int main(int argc, char** argv) {
             std::cout << "Failed to program device[" << i << "] with xclbin file!\n";
         } else {
             std::cout << "Device[" << i << "]: program successful!\n";
-			//for(int i = 0; i < core_count; i++) {
-            //	OCL_CHECK(err, krnls[i] = cl::Kernel(program, "mmult_top_sw", &err));
-			//}
 			for (int i = 0; i < core_count; i++) {
                 cu_id = std::to_string(i + 1);
                 std::string krnl_name_full = krnl_name + ":{" + "mmult_top_sw_" + cu_id + "}";
@@ -253,11 +250,6 @@ int main(int argc, char** argv) {
 	int row_size = 0;
     int col_size = 0;
 	
-	//std::vector<DTYPE*, aligned_allocator<DTYPE> > array_b(SM * SP);
-    //std::vector<DTYPE*, aligned_allocator<DTYPE> > array_c(SN * SP);
-	
-	//aligned_allocator<DTYPE> DTYPE* array_a;
-	
 	if(spmm) {
 	    
         if (fp_input != NULL) {
@@ -271,18 +263,6 @@ int main(int argc, char** argv) {
             exit(EXIT_FAILURE);
         }
     }
-	
-	//DTYPE *array_a;
-    //DTYPE *array_b = new DTYPE[SM * SP];
-    //DTYPE *array_values;
-    //DTYPE *array_c = new DTYPE[SN * SP];
-    //DTYPE *array_c_golden = new DTYPE[SN * SP];
-	
-    //DTYPE_OUT *quantized_multiplier;
-    //DTYPE_OUT *shift;
-    //DTYPE_OUT *bias;
-    //int *array_colIndices;
-    //int *array_rowPtr;
 
     int no_vectors = 512;
 
@@ -320,6 +300,7 @@ int main(int argc, char** argv) {
 	posix_memalign((void **)&array_colIndices, 4096, size * nnz * sizeof(int));
 	posix_memalign((void **)&array_rowPtr, 4096, size * (SN + 1) * sizeof(int));
 	
+	/*
 	printf("array_a = %x \n", array_a);
 	printf("array_b = %x \n", array_b);
 	printf("array_values = %x \n", array_values);
@@ -332,6 +313,7 @@ int main(int argc, char** argv) {
 	printf("array_rowPtr = %x \n", array_rowPtr);
 	printf("array_c - array_values = %x %d \n", array_c - array_values, array_c - array_values);
 	printf("sizeof(DTYPE) = %x %d \n", sizeof(DTYPE), sizeof(DTYPE));
+	*/
 	
 	int array_c_adjust = SN;
 	int N_block = SN;
@@ -339,11 +321,10 @@ int main(int argc, char** argv) {
 	int P_tail = SP % core_count;
 	int bias_offset = 0;
 	
-	std::vector<cl::Buffer> buffer_array_b(core_count);
-    std::vector<cl::Buffer> buffer_array_c(core_count);
-	
 	std::vector<cl::Buffer> buffer_array_a(core_count);
+	std::vector<cl::Buffer> buffer_array_b(core_count);
 	std::vector<cl::Buffer> buffer_array_values(core_count);
+	std::vector<cl::Buffer> buffer_array_c(core_count);
 	std::vector<cl::Buffer> buffer_quantized_multiplier(core_count);
 	std::vector<cl::Buffer> buffer_shift(core_count);
 	std::vector<cl::Buffer> buffer_bias(core_count);
@@ -362,29 +343,17 @@ int main(int argc, char** argv) {
 		//array_c_block = (DTYPE*)(array_c + i*P_block*SN);
 		//OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, array_b_block, &err));
 		//OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, array_c_block, &err));
-		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, array_b + i*P_block*SM, &err));
-		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, array_c + i*P_block*SN, &err));
-		
 		OCL_CHECK(err, buffer_array_a[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_a, &err));
+		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, array_b_block, &err));
 		OCL_CHECK(err, buffer_array_values[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_values, &err));
+		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, array_c_block, &err));
 		OCL_CHECK(err, buffer_quantized_multiplier[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), quantized_multiplier, &err));
 		OCL_CHECK(err, buffer_shift[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), shift, &err));
 		OCL_CHECK(err, buffer_bias[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), bias, &err));
 		OCL_CHECK(err, buffer_array_colIndices[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , nnz * sizeof(int), array_colIndices, &err));
 		OCL_CHECK(err, buffer_array_rowPtr[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , (SN + 1) * sizeof(int), array_rowPtr, &err));
 	}
-	/*
-	OCL_CHECK(err, cl::Buffer buffer_array_a(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_a, &err));
-    //OCL_CHECK(err, cl::Buffer buffer_array_b(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR , SM * SP * sizeof(DTYPE), NULL, &err));    
-    OCL_CHECK(err, cl::Buffer buffer_array_values(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_values, &err));
-    //OCL_CHECK(err, cl::Buffer buffer_array_c(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR , SN * SP * sizeof(DTYPE), NULL, &err));
 	
-	OCL_CHECK(err, cl::Buffer buffer_quantized_multiplier(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), quantized_multiplier, &err));
-	OCL_CHECK(err, cl::Buffer buffer_shift(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), shift, &err));
-	OCL_CHECK(err, cl::Buffer buffer_bias(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), bias, &err));
-	OCL_CHECK(err, cl::Buffer buffer_array_colIndices(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , nnz * sizeof(int), array_colIndices, &err));
-	OCL_CHECK(err, cl::Buffer buffer_array_rowPtr(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , (SN + 1) * sizeof(int), array_rowPtr, &err));
-	*/
 	if(spmm)
         init_arrays_spmm(array_b, SM, SP);
     else
@@ -432,12 +401,9 @@ int main(int argc, char** argv) {
         
 	std::cout << "Load data completed." << std::endl;
 	
-	
 	for(int i = 0; i < core_count; i++) {
 		int narg = 0;
-		std::cout << "check point ----0001 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, spmm));
-		std::cout << "check point ----0002 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_quantized_multiplier[i]));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_shift[i]));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_bias[i]));
@@ -449,16 +415,13 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, clamp_min));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, N_block));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, SM));
-		std::cout << "check point ----001 " << std::endl;
 		if(i != (core_count - 1)) {
 			OCL_CHECK(err, err = krnls[i].setArg(narg++, P_block));
 		}
 		else {
 			OCL_CHECK(err, err = krnls[i].setArg(narg++, P_block+P_tail));
 		}
-		std::cout << "check point ----0020 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_a[i]));
-		std::cout << "check point ----0021 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_b[i]));
 		std::cout << "check point ----0022 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_c[i]));
@@ -468,23 +431,21 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_colIndices[i]));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_values[i]));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, nnz));
-		std::cout << "check point ----004 " << std::endl;
 		
-		//OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_array_a, buffer_array_b[i], buffer_array_values}, 0));
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_array_a[i], buffer_array_b[i], buffer_array_values[i], buffer_quantized_multiplier[i], buffer_shift[i], buffer_bias[i], buffer_array_colIndices[i], buffer_array_rowPtr[i]}, 0));
-		//OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_array_a, buffer_array_b[i], buffer_array_values, buffer_quantized_multiplier, buffer_shift, buffer_bias, buffer_array_colIndices, buffer_array_rowPtr}, 0));
-		std::cout << "check point ----005 " << std::endl;
 	}
 	OCL_CHECK(err, err = q.finish());
-	std::cout << "check point 03 " << std::endl;
+	
+	std::cout << "Running : Kernel." << std::endl;
+
 	auto fpga_begin = std::chrono::high_resolution_clock::now();
-    std::cout << "check point 04 " << std::endl;
+
 	for (int i = 0; i < core_count; i++) {
         // Launch the kernel
         OCL_CHECK(err, err = q.enqueueTask(krnls[i]));
     }
 	OCL_CHECK(err, err = q.finish());
-	std::cout << "check point 05 " << std::endl;
+	
 	for (int i = 0; i < core_count; i++) {
         OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_array_c[i]}, CL_MIGRATE_MEM_OBJECT_HOST));
     }
@@ -492,7 +453,6 @@ int main(int argc, char** argv) {
     
 	auto fpga_end = std::chrono::high_resolution_clock::now();
 	std::cout << "Complete : Kernel execution." << std::endl;
-
 
     std::cout << "Start : mmult_golden." << std::endl;
     auto cpu_begin = std::chrono::high_resolution_clock::now();
@@ -536,25 +496,5 @@ int main(int argc, char** argv) {
 	std::cout << "           CPU Time : " << cpu_duration.count() * 1000.0 << " ms" << std::endl;
 	std::cout << "       FPGA Speedup : " << cpu_duration.count() / fpga_duration.count() << " x" << std::endl;
 	std::cout << "----------------------------------------------------------------------------"   << std::endl;
-	
-	/*
-	for(int i = 0; i < core_count; i++) {
-		OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_b[i], array_b + i*P_block*SM));
-		OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_c[i], array_c + i*P_block*SN));
-	}
-	*/
-	/*
-	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_a, array_a));
-    //OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_b, array_b));
-	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_values, array_values));
-	//OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_c, array_c));
-	
-	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_quantized_multiplier, quantized_multiplier));
-	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_shift, shift));
-	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_bias, bias));
-	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_colIndices, array_colIndices));
-	OCL_CHECK(err, err = q.enqueueUnmapMemObject(buffer_array_rowPtr, array_rowPtr));
-	OCL_CHECK(err, err = q.finish());
-	*/
 	
 }
