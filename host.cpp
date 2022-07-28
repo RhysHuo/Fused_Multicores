@@ -359,8 +359,8 @@ int main(int argc, char** argv) {
 	for(int i = 0; i < core_count; i++) {
 		array_b_block = (DTYPE*)(array_b + i*P_block*SM);
 		array_c_block = (DTYPE*)(array_c + i*P_block*SN);
-		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE), array_b_block, &err));
-		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE), array_c_block, &err));
+		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, array_b_block, &err));
+		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, array_c_block, &err));
 		
 		OCL_CHECK(err, buffer_array_a[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_a, &err));
 		OCL_CHECK(err, buffer_array_values[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_values, &err));
@@ -521,7 +521,7 @@ int main(int argc, char** argv) {
 	std::chrono::duration<double> fpga_duration = fpga_end - fpga_begin;
 	std::chrono::duration<double> cpu_duration = cpu_end - cpu_begin;
 	//float fpga_throughput = (double) numRuns*3*nbytes / fpga_duration.count() / (1024.0*1024.0);
-     	//float cpu_throughput  = (double) numRuns*3*nbytes / cpu_duration.count() / (1024.0*1024.0);
+	//float cpu_throughput  = (double) numRuns*3*nbytes / cpu_duration.count() / (1024.0*1024.0);
 	
 	std::cout << std::endl;
 	std::cout << "----------------------------------------------------------------------------"   << std::endl;
