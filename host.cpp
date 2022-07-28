@@ -295,7 +295,16 @@ int main(int argc, char** argv) {
 	posix_memalign((void **)&array_colIndices, 4096, size * nnz * sizeof(int));
 	posix_memalign((void **)&array_rowPtr, 4096, size * (SN + 1) * sizeof(int));
 	
-	printf("array_a = %x", array_a);
+	printf("array_a = %x \n", array_a);
+	printf("array_b = %x \n", array_b);
+	printf("array_values = %x \n", array_values);
+	printf("array_c = %x \n", array_c);
+	printf("array_c_golden = %x \n", array_c_golden);
+	printf("quantized_multiplier = %x \n", quantized_multiplier);
+	printf("shift = %x \n", shift);
+	printf("bias = %x \n", bias);
+	printf("array_colIndices = %x \n", array_colIndices);
+	printf("array_rowPtr = %x \n", array_rowPtr);
 	
 	//DTYPE *array_a;
     //DTYPE *array_b = new DTYPE[SM * SP];
