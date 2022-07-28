@@ -2,6 +2,7 @@
 #include <sstream> // std::stringstream
 #include <algorithm>
 #include <chrono>
+#include <vector>
 #include "xcl2.hpp"
 #include <CL/cl.h>
 #include <CL/cl2.hpp>
@@ -293,6 +294,8 @@ int main(int argc, char** argv) {
 	posix_memalign((void **)&bias, 4096, size * SN * sizeof(DTYPE_OUT));
 	posix_memalign((void **)&array_colIndices, 4096, size * nnz * sizeof(int));
 	posix_memalign((void **)&array_rowPtr, 4096, size * (SN + 1) * sizeof(int));
+	
+	printf("array_a = %x", array_a);
 	
 	//DTYPE *array_a;
     //DTYPE *array_b = new DTYPE[SM * SP];
