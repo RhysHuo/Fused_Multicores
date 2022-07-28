@@ -342,13 +342,13 @@ void mmult_wrapper_sw(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<
 	#pragma HLS DATAFLOW	
 
 	compute_sw(mode, zero_point_lhs, zero_point_rhs, N, M, P, A, B, C_fifo, B_index, B_index_loop, tail, rowPtr, columnIndex, values);
-	//printf("compute_sw completed \n");
+	printf("compute_sw completed \n");
 
 	scale_sw(quantized_multiplier, shift, bias, zero_point_dst, clamp_max, clamp_min, N, M, P, C_fifo, B_index, B_index_loop, tail, write_fifo);
-	//printf("scale_sw completed \n");
+	printf("scale_sw completed \n");
 
 	writec_sw(N, P, write_fifo, C, array_c_adjust, B_index, B_index_loop, tail);
-	//printf("writec_sw completed \n");
+	printf("writec_sw completed \n");
 	
 }
 
