@@ -159,6 +159,8 @@ int main(int argc, char** argv) {
     cl_int err;
     cl::Context context;
     cl::CommandQueue q;
+	std::string cu_id;
+    std::string krnl_name = "mmult_top_sw";
     std::vector<cl::Kernel> krnls(S_cores);
     cl::Program program;
     std::vector<cl::Platform> platforms;
@@ -214,9 +216,19 @@ int main(int argc, char** argv) {
             std::cout << "Failed to program device[" << i << "] with xclbin file!\n";
         } else {
             std::cout << "Device[" << i << "]: program successful!\n";
-			for(int i = 0; i < core_count; i++) {
-            	OCL_CHECK(err, krnls[i] = cl::Kernel(program, "mmult_top_sw", &err));
-			}
+			//for(int i = 0; i < core_count; i++) {
+            //	OCL_CHECK(err, krnls[i] = cl::Kernel(program, "mmult_top_sw", &err));
+			//}
+			for (int i = 0; i < core_count; i++) {
+                cu_id = std::to_string(i + 1);
+                std::string krnl_name_full = krnl_name + ":{" + "mmult_top_sw_" + cu_id + "}";
+                printf("Creating a kernel [%s] for CU(%d)\n", krnl_name_full.c_str(), i);
+                // Here Kernel object is created by specifying kernel name along with
+                // compute unit.
+                // For such case, this kernel object can only access the specific
+                // Compute unit
+                OCL_CHECK(err, krnls[i] = cl::Kernel(program, krnl_name_full.c_str(), &err));
+            }
             valid_device = true;
             break; // we break because we found a valid device
         }
@@ -326,8 +338,8 @@ int main(int argc, char** argv) {
 	
 	DTYPE *array_b_block;
 	DTYPE *array_c_block;
-	posix_memalign((void **)&array_b_block, 4096, SM * SP * sizeof(DTYPE));
-	posix_memalign((void **)&array_c_block, 4096, SN * SP * sizeof(DTYPE));
+	//posix_memalign((void **)&array_b_block, 4096, SM * SP * sizeof(DTYPE));
+	//posix_memalign((void **)&array_c_block, 4096, SN * SP * sizeof(DTYPE));
 	
 	for(int i = 0; i < core_count; i++) {
 		array_b_block = (DTYPE*)(array_b + i*P_block*SM);
