@@ -281,17 +281,18 @@ int main(int argc, char** argv) {
     DTYPE_OUT *bias;
     int *array_colIndices;
     int *array_rowPtr;
+	int size = 4;
 	
-	posix_memalign((void **)&array_a, 4096, SN * SM * sizeof(DTYPE));
-	posix_memalign((void **)&array_b, 4096, SM * SP * sizeof(DTYPE));
-	posix_memalign((void **)&array_values, 4096, SN * SM * sizeof(DTYPE));
-	posix_memalign((void **)&array_c, 4096, SN * SP * sizeof(DTYPE));
-	posix_memalign((void **)&array_c_golden, 4096, SN * SP * sizeof(DTYPE));
-	posix_memalign((void **)&quantized_multiplier, 4096, SN * sizeof(DTYPE_OUT));
-	posix_memalign((void **)&shift, 4096, SN * sizeof(DTYPE_OUT));
-	posix_memalign((void **)&bias, 4096, SN * sizeof(DTYPE_OUT));
-	posix_memalign((void **)&array_colIndices, 4096, nnz * sizeof(int));
-	posix_memalign((void **)&array_rowPtr, 4096, (SN + 1) * sizeof(int));
+	posix_memalign((void **)&array_a, 4096, size * SN * SM * sizeof(DTYPE));
+	posix_memalign((void **)&array_b, 4096, size * SM * SP * sizeof(DTYPE));
+	posix_memalign((void **)&array_values, 4096, size * SN * SM * sizeof(DTYPE));
+	posix_memalign((void **)&array_c, 4096, size * SN * SP * sizeof(DTYPE));
+	posix_memalign((void **)&array_c_golden, 4096, size * SN * SP * sizeof(DTYPE));
+	posix_memalign((void **)&quantized_multiplier, 4096, size * SN * sizeof(DTYPE_OUT));
+	posix_memalign((void **)&shift, 4096, size * SN * sizeof(DTYPE_OUT));
+	posix_memalign((void **)&bias, 4096, size * SN * sizeof(DTYPE_OUT));
+	posix_memalign((void **)&array_colIndices, 4096, size * nnz * sizeof(int));
+	posix_memalign((void **)&array_rowPtr, 4096, size * (SN + 1) * sizeof(int));
 	
 	//DTYPE *array_a;
     //DTYPE *array_b = new DTYPE[SM * SP];
