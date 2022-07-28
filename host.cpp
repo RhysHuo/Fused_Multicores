@@ -350,17 +350,20 @@ int main(int argc, char** argv) {
 	std::vector<cl::Buffer> buffer_array_colIndices(core_count);
 	std::vector<cl::Buffer> buffer_array_rowPtr(core_count);
 	
-	
+	/*
 	DTYPE *array_b_block;
 	DTYPE *array_c_block;
 	posix_memalign((void **)&array_b_block, 4096, SM * SP * sizeof(DTYPE)/core_count);
 	posix_memalign((void **)&array_c_block, 4096, SN * SP * sizeof(DTYPE)/core_count);
+	*/
 	
 	for(int i = 0; i < core_count; i++) {
-		array_b_block = (DTYPE*)(array_b + i*P_block*SM);
-		array_c_block = (DTYPE*)(array_c + i*P_block*SN);
-		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, array_b_block, &err));
-		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, array_c_block, &err));
+		//array_b_block = (DTYPE*)(array_b + i*P_block*SM);
+		//array_c_block = (DTYPE*)(array_c + i*P_block*SN);
+		//OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, array_b_block, &err));
+		//OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, array_c_block, &err));
+		OCL_CHECK(err, buffer_array_b[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR  , SM * SP * sizeof(DTYPE)/core_count, array_b + i*P_block*SM, &err));
+		OCL_CHECK(err, buffer_array_c[i] = cl::Buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR  , SN * SP * sizeof(DTYPE)/core_count, array_c + i*P_block*SN, &err));
 		
 		OCL_CHECK(err, buffer_array_a[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_a, &err));
 		OCL_CHECK(err, buffer_array_values[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * SM * sizeof(DTYPE), array_values, &err));
