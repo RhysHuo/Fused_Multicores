@@ -131,11 +131,11 @@ void golden_spmm_byte(DTYPE *values, int *row_ptr, int *col_indices, DTYPE *x, i
 static int result_check(DTYPE *y, DTYPE *y_golden, int row, int col)
 {
 	for (int i = 0; i < row * col; i++) {
-		//if (y_golden[i] != y[i]) {
+		if (y_golden[i] != y[i]) {
 			std::cout 	<< "Mismatch: data index= " << i << " golden = " << y_golden[i]
 						<< ", kernel = " << y[i] << std::endl;
-			//return 1;
-		//}
+			return 1;
+		}
 	}
     std::cout 	<< "TEST PASSED !" <<  std::endl;
 	return 0;
