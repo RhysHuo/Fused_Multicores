@@ -298,8 +298,10 @@ int main(int argc, char** argv) {
 	posix_memalign((void **)&shift, 4096, size * SN * sizeof(DTYPE_OUT));
 	posix_memalign((void **)&bias, 4096, size * SN * sizeof(DTYPE_OUT));
 	posix_memalign((void **)&array_colIndices, 4096, size * nnz * sizeof(int));
-	//posix_memalign((void **)&array_rowPtr, 4096, size * (SN + 1) * sizeof(int));
-	posix_memalign((void **)&array_rowPtr, 4096, size * SN * sizeof(int));
+	if(spmm)
+		posix_memalign((void **)&array_rowPtr, 4096, size * (SN + 1) * sizeof(int));
+	else
+		posix_memalign((void **)&array_rowPtr, 4096, size * SN * sizeof(int));
 	
 	/*
 	printf("array_a = %x \n", array_a);
@@ -358,8 +360,10 @@ int main(int argc, char** argv) {
 		OCL_CHECK(err, buffer_shift[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), shift, &err));
 		OCL_CHECK(err, buffer_bias[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(DTYPE_OUT), bias, &err));
 		OCL_CHECK(err, buffer_array_colIndices[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , nnz * sizeof(int), array_colIndices, &err));
-		//OCL_CHECK(err, buffer_array_rowPtr[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , (SN + 1) * sizeof(int), array_rowPtr, &err));
-		OCL_CHECK(err, buffer_array_rowPtr[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(int), array_rowPtr, &err));
+		if(spmm)
+			OCL_CHECK(err, buffer_array_rowPtr[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , (SN + 1) * sizeof(int), array_rowPtr, &err));
+		else
+			OCL_CHECK(err, buffer_array_rowPtr[i] = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR , SN * sizeof(int), array_rowPtr, &err));
 	}
 	
 	if(spmm)
