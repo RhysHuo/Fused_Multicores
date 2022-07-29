@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
     cl::Context context;
     cl::CommandQueue q;
 	std::string cu_id;
-    std::string krnl_name = "mmult_top_sw";
+    std::string krnl_name = "mmult_top";
     std::vector<cl::Kernel> krnls(S_cores);
     cl::Program program;
     std::vector<cl::Platform> platforms;
@@ -219,7 +219,7 @@ int main(int argc, char** argv) {
             std::cout << "Device[" << i << "]: program successful!\n";
 			for (int i = 0; i < core_count; i++) {
                 cu_id = std::to_string(i + 1);
-                std::string krnl_name_full = krnl_name + ":{" + "mmult_top_sw_" + cu_id + "}";
+                std::string krnl_name_full = krnl_name + ":{" + "mmult_top_" + cu_id + "}";
                 printf("Creating a kernel [%s] for CU(%d)\n", krnl_name_full.c_str(), i);
                 // Here Kernel object is created by specifying kernel name along with
                 // compute unit.
