@@ -287,7 +287,7 @@ int main(int argc, char** argv) {
     DTYPE_OUT *bias;
     int *array_colIndices;
     int *array_rowPtr;
-	int size = 4;
+	int size = 1;
 	
 	posix_memalign((void **)&array_a, 4096, size * SN * SM * sizeof(DTYPE));
 	posix_memalign((void **)&array_b, 4096, size * SM * SP * sizeof(DTYPE));
