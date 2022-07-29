@@ -76,7 +76,7 @@ const static int ROW_SIZE_MAX        = (1024);
 const static int ROW_SIZE_THREAD_MAX = (1024);
 const static int COL_SIZE_MAX        = (1024);
 
-void dsp_kernel_sw(
+void dsp_kernel(
 	DTYPE a_value,
 	DTYPE b_block[B_HEIGHT][B_WIDTH_BLOCK],
 	ap_int<32> b_row,
@@ -85,7 +85,7 @@ void dsp_kernel_sw(
 	DTYPE_OUT acc[B_WIDTH_BLOCK]
 );
 
-void compute_sw(
+void compute(
 	ap_uint<2> mode, 
 	ap_int<8> zero_point_lhs,  
 	ap_int<8> zero_point_rhs, 
@@ -103,7 +103,7 @@ void compute_sw(
 	DTYPE *values
 );
 
-void scale_sw(
+void scale(
 	ap_int<32> *quantized_multiplier, 
 	ap_int<32> *shift, 
 	ap_int<32> *bias, 
@@ -120,7 +120,7 @@ void scale_sw(
 	hls::stream<DTYPE_OUT> write_fifo[C_WIDTH_BLOCK]
 );
 
-void writec_sw(
+void writec(
 	int N,
 	int P, 
 	hls::stream<DTYPE_OUT> write_fifo[C_WIDTH_BLOCK], 
@@ -131,7 +131,7 @@ void writec_sw(
 	int tail
 );
 
-void mmult_wrapper_sw(
+void mmult_wrapper(
 	ap_uint<2> mode, 
 	ap_int<32> *quantized_multiplier, 
 	ap_int<32> *shift, 
@@ -159,7 +159,7 @@ void mmult_wrapper_sw(
 
 extern "C" {
 
-	void mmult_top_sw(
+	void mmult_top(
 		ap_uint<2> mode, 
 		ap_int<32> *quantized_multiplier, 
 		ap_int<32> *shift, 
