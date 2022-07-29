@@ -34,7 +34,7 @@ const int BLOCK=B_WIDTH_BLOCK;   //BLOCK should be less than B_WIDTH_BLOCK
 const int PARALLEL_ROW = B_BLOCK_PARALLEL;
 const int A_WIDTH_FIFO =  A_WIDTH;
 
-void dsp_kernel_sw(DTYPE a_value,DTYPE b_block[B_HEIGHT][B_WIDTH_BLOCK],ap_int<32> b_row,ap_int<8> zero_point_lhs,ap_int<8> zero_point_rhs,DTYPE_OUT acc[B_WIDTH_BLOCK])
+void dsp_kernel(DTYPE a_value,DTYPE b_block[B_HEIGHT][B_WIDTH_BLOCK],ap_int<32> b_row,ap_int<8> zero_point_lhs,ap_int<8> zero_point_rhs,DTYPE_OUT acc[B_WIDTH_BLOCK])
 {
 	//#pragma HLS ALLOCATION instances=mul limit=64 operation
 	//#pragma HLS INLINE
@@ -60,7 +60,7 @@ void dsp_kernel_sw(DTYPE a_value,DTYPE b_block[B_HEIGHT][B_WIDTH_BLOCK],ap_int<3
 	} // j loop
 }
 
-void compute_sw(ap_uint<2> mode, ap_int<8> zero_point_lhs,  ap_int<8> zero_point_rhs, int N, int M, int P, DTYPE* A, DTYPE* B, hls::stream<DTYPE_OUT> C_fifo[B_WIDTH_BLOCK],int B_index, int B_index_loop, int tail,int *rowPtr,int *columnIndex,DTYPE *values)
+void compute(ap_uint<2> mode, ap_int<8> zero_point_lhs,  ap_int<8> zero_point_rhs, int N, int M, int P, DTYPE* A, DTYPE* B, hls::stream<DTYPE_OUT> C_fifo[B_WIDTH_BLOCK],int B_index, int B_index_loop, int tail,int *rowPtr,int *columnIndex,DTYPE *values)
 {
 
 
@@ -175,7 +175,7 @@ void compute_sw(ap_uint<2> mode, ap_int<8> zero_point_lhs,  ap_int<8> zero_point
 
 					//DTYPE v = A_accel.read();
 					DTYPE v = A_accel[k];
-					dsp_kernel_sw(v,B_accel,k,zero_point_lhs,zero_point_rhs,acc);
+					dsp_kernel(v,B_accel,k,zero_point_lhs,zero_point_rhs,acc);
 
 					for (int j = 0; j < B_WIDTH_BLOCK; j++) {
 						#pragma HLS UNROLL
@@ -207,7 +207,7 @@ void compute_sw(ap_uint<2> mode, ap_int<8> zero_point_lhs,  ap_int<8> zero_point
 					DTYPE v = A_accel[i];
 					int   ci = col_indices[i];
 
-					dsp_kernel_sw(v,B_accel,ci,zero_point_lhs,zero_point_rhs,acc);
+					dsp_kernel(v,B_accel,ci,zero_point_lhs,zero_point_rhs,acc);
 
 					for (int j = 0; j < B_WIDTH_BLOCK; j++) {
 						#pragma HLS UNROLL			
@@ -228,7 +228,7 @@ void compute_sw(ap_uint<2> mode, ap_int<8> zero_point_lhs,  ap_int<8> zero_point
     } // A_index loop
 }
 
-void scale_sw(ap_int<32> *quantized_multiplier, ap_int<32> *shift, ap_int<32> *bias, ap_int<8> zero_point_dst, ap_int<8> clamp_max,ap_int<8> clamp_min,int N, int M, int P, hls::stream<DTYPE_OUT> C_fifo[C_WIDTH_BLOCK],int B_index, int B_index_loop,int tail,hls::stream<DTYPE_OUT> write_fifo[C_WIDTH_BLOCK])
+void scale(ap_int<32> *quantized_multiplier, ap_int<32> *shift, ap_int<32> *bias, ap_int<8> zero_point_dst, ap_int<8> clamp_max,ap_int<8> clamp_min,int N, int M, int P, hls::stream<DTYPE_OUT> C_fifo[C_WIDTH_BLOCK],int B_index, int B_index_loop,int tail,hls::stream<DTYPE_OUT> write_fifo[C_WIDTH_BLOCK])
 {
 
 	int counter = 0;
@@ -312,7 +312,7 @@ void scale_sw(ap_int<32> *quantized_multiplier, ap_int<32> *shift, ap_int<32> *b
 		}
 }
 
-void writec_sw(int N,int P, hls::stream<DTYPE_OUT> write_fifo[C_WIDTH_BLOCK], DTYPE* C,int array_c_adjust,int B_index, int B_index_loop,int tail)
+void writec(int N,int P, hls::stream<DTYPE_OUT> write_fifo[C_WIDTH_BLOCK], DTYPE* C,int array_c_adjust,int B_index, int B_index_loop,int tail)
 {
 	int B_WIDTH_INT;
 	if (B_index < (B_index_loop-1))
@@ -339,7 +339,7 @@ void writec_sw(int N,int P, hls::stream<DTYPE_OUT> write_fifo[C_WIDTH_BLOCK], DT
 		}				
 }
 
-void mmult_wrapper_sw(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<32> *shift, ap_int<32> *bias,  ap_int<32> bias_count, ap_int<8> zero_point_lhs,  ap_int<8> zero_point_rhs, ap_int<8> zero_point_dst, ap_int<8> clamp_max,ap_int<8> clamp_min,int N, int M, int P, DTYPE* A, DTYPE* B, DTYPE* C, int array_c_adjust, int B_index, int B_index_loop, int tail,int *rowPtr,int *columnIndex,DTYPE *values)
+void mmult_wrapper(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<32> *shift, ap_int<32> *bias,  ap_int<32> bias_count, ap_int<8> zero_point_lhs,  ap_int<8> zero_point_rhs, ap_int<8> zero_point_dst, ap_int<8> clamp_max,ap_int<8> clamp_min,int N, int M, int P, DTYPE* A, DTYPE* B, DTYPE* C, int array_c_adjust, int B_index, int B_index_loop, int tail,int *rowPtr,int *columnIndex,DTYPE *values)
 {
 
 	hls::stream<DTYPE_OUT>       C_fifo[C_WIDTH_BLOCK];
@@ -353,20 +353,17 @@ void mmult_wrapper_sw(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<
 	
 	#pragma HLS DATAFLOW	
 
-	compute_sw(mode, zero_point_lhs, zero_point_rhs, N, M, P, A, B, C_fifo, B_index, B_index_loop, tail, rowPtr, columnIndex, values);
-	printf("compute_sw completed \n");
+	compute(mode, zero_point_lhs, zero_point_rhs, N, M, P, A, B, C_fifo, B_index, B_index_loop, tail, rowPtr, columnIndex, values);
 
-	scale_sw(quantized_multiplier, shift, bias, zero_point_dst, clamp_max, clamp_min, N, M, P, C_fifo, B_index, B_index_loop, tail, write_fifo);
-	printf("scale_sw completed \n");
+	scale(quantized_multiplier, shift, bias, zero_point_dst, clamp_max, clamp_min, N, M, P, C_fifo, B_index, B_index_loop, tail, write_fifo);
 
-	writec_sw(N, P, write_fifo, C, array_c_adjust, B_index, B_index_loop, tail);
-	printf("writec_sw completed \n");
+	writec(N, P, write_fifo, C, array_c_adjust, B_index, B_index_loop, tail);
 	
 }
 
 typedef unsigned long u32;
 
-void mmult_top_sw(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<32> *shift, ap_int<32> *bias,  ap_int<32> bias_count, ap_int<8> zero_point_lhs,  ap_int<8> zero_point_rhs, ap_int<8> zero_point_dst, ap_int<8> clamp_max,ap_int<8> clamp_min,int N, int M, int P, DTYPE* A, DTYPE* B, DTYPE* C,int array_c_adjust,int *rowPtr,int *columnIndex, DTYPE *values,int nnz)
+void mmult_top(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<32> *shift, ap_int<32> *bias,  ap_int<32> bias_count, ap_int<8> zero_point_lhs,  ap_int<8> zero_point_rhs, ap_int<8> zero_point_dst, ap_int<8> clamp_max,ap_int<8> clamp_min,int N, int M, int P, DTYPE* A, DTYPE* B, DTYPE* C,int array_c_adjust,int *rowPtr,int *columnIndex, DTYPE *values,int nnz)
 {
 	
 	 //c_fifo_stream_t       C_fifo[B_WIDTH_BLOCK];
@@ -409,7 +406,7 @@ void mmult_top_sw(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<32> 
 		for (int B_index = 0; B_index < B_index_loop; B_index++) {
 			//#pragma HLS DATAFLOW
 			//mmult_wrapper(mode, quantized_multiplier_data, shift_data, bias_data, bias_count, zero_point_lhs, zero_point_rhs, zero_point_dst, clamp_max,clamp_min,N, M, P, A, B, C,  B_index, B_index_loop, tail,rowPtr,columnIndex,values );
-			mmult_wrapper_sw(mode, quantized_multiplier, shift, bias, bias_count, zero_point_lhs, zero_point_rhs, zero_point_dst, clamp_max,clamp_min,N, M, P, A, B, C, array_c_adjust, B_index, B_index_loop, tail,rowPtr,columnIndex,values );
+			mmult_wrapper(mode, quantized_multiplier, shift, bias, bias_count, zero_point_lhs, zero_point_rhs, zero_point_dst, clamp_max,clamp_min,N, M, P, A, B, C, array_c_adjust, B_index, B_index_loop, tail,rowPtr,columnIndex,values);
 
 		} 
 	}
