@@ -63,7 +63,8 @@ void dsp_kernel(DTYPE a_value,DTYPE b_block[B_HEIGHT][B_WIDTH_BLOCK],ap_int<32> 
 void compute(ap_uint<2> mode, ap_int<8> zero_point_lhs,  ap_int<8> zero_point_rhs, int N, int M, int P, DTYPE* A, DTYPE* B, hls::stream<DTYPE_OUT> C_fifo[B_WIDTH_BLOCK],int B_index, int B_index_loop, int tail,int *rowPtr,int *columnIndex,DTYPE *values)
 {
 
-
+	#pragma HLS DATAFLOW
+	
        //#pragma HLS allocation function instances=dsp_kernel limit=1
 	DTYPE B_accel[B_HEIGHT][B_WIDTH_BLOCK];
     	#pragma HLS array_partition variable=B_accel block factor= BLOCK/2 dim=2
@@ -88,7 +89,7 @@ void compute(ap_uint<2> mode, ap_int<8> zero_point_lhs,  ap_int<8> zero_point_rh
 	
 	int col_indices[A_WIDTH];
 
-    	#pragma HLS DATAFLOW	
+    	//#pragma HLS DATAFLOW	
 
 	int B_WIDTH_INT,rnnz;
 
@@ -370,14 +371,14 @@ void mmult_top(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<32> *sh
 	 //#pragma HLS STREAM variable=C_fifo depth=1024 dim=1
 	
 	#pragma HLS INTERFACE m_axi port=A offset=slave bundle=gmem0
-	#pragma HLS INTERFACE m_axi port=B offset=slave bundle=gmem1
+	#pragma HLS INTERFACE m_axi port=B offset=slave bundle=gmem0
 	#pragma HLS INTERFACE m_axi port=C offset=slave bundle=gmem0
 	#pragma HLS INTERFACE m_axi port=values offset=slave bundle=gmem0
 	#pragma HLS INTERFACE m_axi port=columnIndex offset=slave bundle=gmem0
 	#pragma HLS INTERFACE m_axi port=rowPtr offset=slave bundle=gmem0
-	#pragma HLS INTERFACE m_axi port=quantized_multiplier offset=slave bundle=gmem2
-	#pragma HLS INTERFACE m_axi port=shift offset=slave bundle=gmem3
-	#pragma HLS INTERFACE m_axi port=bias offset=slave bundle=gmem4
+	#pragma HLS INTERFACE m_axi port=quantized_multiplier offset=slave bundle=gmem0
+	#pragma HLS INTERFACE m_axi port=shift offset=slave bundle=gmem0
+	#pragma HLS INTERFACE m_axi port=bias offset=slave bundle=gmem0
 
 	 ap_int<32> bias_data[1024]; 
 	 ap_int<32> shift_data[1024];
