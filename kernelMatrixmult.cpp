@@ -380,35 +380,35 @@ void mmult_top(ap_uint<2> mode, ap_int<32> *quantized_multiplier, ap_int<32> *sh
 	#pragma HLS INTERFACE m_axi port=shift offset=slave bundle=gmem2
 	#pragma HLS INTERFACE m_axi port=bias offset=slave bundle=gmem2
 
-	 ap_int<32> bias_data[1024]; 
-	 ap_int<32> shift_data[1024];
-	 ap_int<32> quantized_multiplier_data[1024];
+	 //ap_int<32> bias_data[1024]; 
+	 //ap_int<32> shift_data[1024];
+	 //ap_int<32> quantized_multiplier_data[1024];
 	 
 	 //load bias
          //preloading bias and param data seems to be a good idea but in practice performance is the same and we save preloading overhead
          //param data is loaded in demand in this case
          //preloading is important for certain matrix configurations with small A and large B so I am going to leave it
-	if (bias_count > 0) 
-	{
-		for(int bias_index=0;bias_index<bias_count;bias_index++)
-		{
-			#pragma HLS PIPELINE
-			bias_data[bias_index]=bias[bias_index];
-			shift_data[bias_index]=shift[bias_index];
-			quantized_multiplier_data[bias_index]=quantized_multiplier[bias_index];
-		}
-	}
-	else
-	{
+	//if (bias_count > 0) 
+	//{
+	//for(int bias_index=0;bias_index<bias_count;bias_index++)
+	//{
+	//	#pragma HLS PIPELINE
+	//	bias_data[bias_index]=bias[bias_index];
+	//	shift_data[bias_index]=shift[bias_index];
+	//	quantized_multiplier_data[bias_index]=quantized_multiplier[bias_index];
+	//}
+	//}
+	//else
+	//{
 
-		ap_int<32> tail = P % B_WIDTH_BLOCK;
-		ap_int<32> B_index_loop = P / B_WIDTH_BLOCK + 1;
-	
-		for (int B_index = 0; B_index < B_index_loop; B_index++) {
-			//#pragma HLS DATAFLOW
-			//mmult_wrapper(mode, quantized_multiplier_data, shift_data, bias_data, bias_count, zero_point_lhs, zero_point_rhs, zero_point_dst, clamp_max,clamp_min,N, M, P, A, B, C,  B_index, B_index_loop, tail,rowPtr,columnIndex,values );
-			mmult_wrapper(mode, quantized_multiplier, shift, bias, bias_count, zero_point_lhs, zero_point_rhs, zero_point_dst, clamp_max,clamp_min,N, M, P, A, B, C, array_c_adjust, B_index, B_index_loop, tail,rowPtr,columnIndex,values);
+	ap_int<32> tail = P % B_WIDTH_BLOCK;
+	ap_int<32> B_index_loop = P / B_WIDTH_BLOCK + 1;
 
-		} 
-	}
+	for (int B_index = 0; B_index < B_index_loop; B_index++) {
+		//#pragma HLS DATAFLOW
+		//mmult_wrapper(mode, quantized_multiplier_data, shift_data, bias_data, bias_count, zero_point_lhs, zero_point_rhs, zero_point_dst, clamp_max,clamp_min,N, M, P, A, B, C,  B_index, B_index_loop, tail,rowPtr,columnIndex,values );
+		mmult_wrapper(mode, quantized_multiplier, shift, bias, bias_count, zero_point_lhs, zero_point_rhs, zero_point_dst, clamp_max,clamp_min,N, M, P, A, B, C, array_c_adjust, B_index, B_index_loop, tail,rowPtr,columnIndex,values);
+
+	} 
+	//}
 }
