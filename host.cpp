@@ -436,13 +436,13 @@ int main(int argc, char** argv) {
 		}
 		else {
 			OCL_CHECK(err, err = krnls[i].setArg(narg++, P_block+P_tail));
-			std::cout << "check point ----001 " << std::endl;
+			//std::cout << "check point ----001 " << std::endl;
 		}
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_a[i]));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_b[i]));
-		std::cout << "check point ----002 " << std::endl;
+		//std::cout << "check point ----002 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_c[i]));
-		std::cout << "check point ----003 " << std::endl;
+		//std::cout << "check point ----003 " << std::endl;
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, array_c_adjust));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_rowPtr[i]));
 		OCL_CHECK(err, err = krnls[i].setArg(narg++, buffer_array_colIndices[i]));
