@@ -151,8 +151,8 @@ int main(int argc, char** argv) {
 
     std::string xclbinFilename = argv[1];
 	int S_cores = atoi(argv[2]);
-	if(S_cores > 7) {
-		std::cout 	<< "No enough cores (7 in total), please re-enter core number." <<  std::endl;
+	if(S_cores > 4) {
+		std::cout 	<< "No enough cores (4 in total), please re-enter core number." <<  std::endl;
 		return EXIT_FAILURE;
 	}
 	int core_count = (S_cores&0x7);
