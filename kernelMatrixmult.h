@@ -56,7 +56,7 @@ SOFTWARE.
 #define C_WIDTH    MAX_P
 
 #define A_HEIGHT_BLOCK  1// 4096 //(512/4)
-#define B_WIDTH_BLOCK 16 //16 //32 //64 //64 //128 // 64 //64 //64 //8//8// //16//32//1//32//1//32//1// 1//32//(128/4)
+#define B_WIDTH_BLOCK 32 //16 //32 //64 //64 //128 // 64 //64 //64 //8//8// //16//32//1//32//1//32//1// 1//32//(128/4)
 #define B_BLOCK_PARALLEL 1
 #define C_HEIGHT_BLOCK  A_HEIGHT_BLOCK 
 #define C_WIDTH_BLOCK   B_WIDTH_BLOCK
