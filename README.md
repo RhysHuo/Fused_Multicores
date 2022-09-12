@@ -17,6 +17,8 @@ First you need to compile the kernel code using `-c` option and the Xilinx objec
 Then you can link the Xilinx object `.xo` file to the platform using `-l` or `--link` option.
 This will generate the Xilinx binary `.xclbin` file which will be used to program the FPGA.
 
+Note that there is a `.cfg` file which contains 4 compute units (CUs) configuration. If you just want to use one CU, then you can exclude this file.
+
 ```
 v++ -t hw --platform xilinx_u250_gen3x16_xdma_4_1_202210_1 -c -k mmult_top -o'kernelmult.hw.xo' kernelMatrixmult.cpp kernelMatrixmult.h xcl2.hpp
 v++ -t hw --platform xilinx_u250_gen3x16_xdma_4_1_202210_1 --link kernelmult.hw.xo --config mmult_top.cfg -o'kernelmult.hw.xclbin'
@@ -50,6 +52,7 @@ This accelerator can support up to 4 cores.
 You can choose the mode between GEMM and SPMM. `0` for GEMM, `1` for SPMM.
 
 If you choose GEMM mode, then you can set any matrix size `<SN>` `<SM>` `<SP>` up to the maximum `MAX_N`  `MAX_M`  `MAX_P`.
+
 Matrix size : `A: SN*SM` `B: SM*SP` `C: SN*SP`
 
-If you choose SPMM mode, then these three values `<SN>` `<SM>` `<SP>` are irrelevant and can be set to any values since in SPMM mode the matrix size is up to the data file you input.
+If you choose SPMM mode, then these values `<SN>` `<SM>` `<SP>` are irrelevant and can be set to any values since in SPMM mode the matrix size is up to the data file you input.
