@@ -40,7 +40,7 @@ g++ -g -std=c++14 -I$XILINX_XRT/include -L${XILINX_XRT}/lib/ -I/HLS_arbitrary_Pr
 
 When you successfully running commands above, you should have two files `kernelmult.hw.xclbin` and `host.exe` in your folder.
 
-In both modes, one of matrices is read from data file so you should have this data file in the right format, such as [weights_byte_099.csv](https://github.com/RhysHuo/Fused_Multicores/blob/main/gemm_weights_byte_099.csv)for GEMM or [weights_byte_099.csr](https://github.com/RhysHuo/Fused_Multicores/blob/main/spmm_weights_byte_099.csr) for SPMM.
+In both modes, one of matrices is read from data file so you should have this data file in the right format, such as [weights_byte_099.csv](https://github.com/RhysHuo/Fused_Multicores/blob/main/gemm_weights_byte_099.csv) for GEMM or [weights_byte_099.csr](https://github.com/RhysHuo/Fused_Multicores/blob/main/spmm_weights_byte_099.csr) for SPMM.
 
 You can run this application using the following command:
 
